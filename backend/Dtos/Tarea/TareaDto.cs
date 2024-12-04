@@ -1,6 +1,6 @@
-﻿namespace backend.Models
+﻿namespace backend.Dtos.Tarea
 {
-	public class Tarea
+	public class TareaDto
 	{
 		public int Id { get; set; }
 		public string Title { get; set; } = string.Empty;
@@ -8,7 +8,5 @@
 		public bool Completed { get; set; }
 		public DateTime Creadet_at { get; set; }
 		public DateTime Updated_at { get; set; }
-		public int? UsuariosId { get; set; }
-		public Usuarios? Usuario { get; set; }
 	}
 }

@@ -11,6 +11,7 @@ namespace backend.Data
 			
 		}
 		public DbSet<Tarea> Tarea { get; set; }
+		public DbSet<Usuarios> Usuarios { get; set; }
 
 	}
 }
