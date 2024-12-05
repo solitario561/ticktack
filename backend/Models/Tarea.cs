@@ -8,7 +8,6 @@
 		public bool Completed { get; set; }
 		public DateTime Creadet_at { get; set; }
 		public DateTime Updated_at { get; set; }
-		public int? UsuariosId { get; set; }
-		public Usuarios? Usuario { get; set; }
+		public bool Baja { get; set; }
 	}
 }

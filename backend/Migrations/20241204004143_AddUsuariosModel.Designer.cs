@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241204004143_AddUsuariosModel")]
+    partial class AddUsuariosModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +32,6 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Baja")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("bit");
@@ -50,9 +50,53 @@ namespace backend.Migrations
                     b.Property<DateTime>("Updated_at")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UsuariosId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UsuariosId");
+
                     b.ToTable("Tarea");
+                });
+
+            modelBuilder.Entity("backend.Models.Usuarios", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("NombreUsuario")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Pass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TagUsuario")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("backend.Models.Tarea", b =>
+                {
+                    b.HasOne("backend.Models.Usuarios", "Usuario")
+                        .WithMany("Tareas")
+                        .HasForeignKey("UsuariosId");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("backend.Models.Usuarios", b =>
+                {
+                    b.Navigation("Tareas");
                 });
 #pragma warning restore 612, 618
         }
