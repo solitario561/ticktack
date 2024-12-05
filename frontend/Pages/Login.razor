@@ -1,0 +1,48 @@
+﻿@page "/"
+@layout LoginLayout
+
+@inject HttpClient httpCLient
+@using frontend.Extensiones;
+@using Shared;
+@using Microsoft.AspNetCore.Components.Authorization;
+@inject AuthenticationStateProvider autenticacionProveedor
+@inject NavigationManager navManager
+
+<div class="row mt-5">
+	<div class="col-lg-4 offset-lg-4 border">
+		<div class="mb-3 text-center">
+			<h3>LOGIN</h3>
+		</div>
+
+		<div class="mb-3">
+			<label>Correo</label>
+			<input @bind="login.Correo" class="form-control" />
+		</div>
+
+		<div class="mb-3">
+			<label>Contraseña</label>
+			<input @bind="login.Pass" class="form-control" />
+		</div>
+
+		<div class="mb-3">
+			<button @onclick="IniciarSesion" class="btn btn-primary">Login</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	private LoginDto login = new LoginDto();
+
+	private async Task IniciarSesion()
+	{
+		var loginResponse = await httpCLient.PostAsJsonAsync<LoginDto>("/Login", login);
+		if(loginResponse.IsSuccessStatusCode)
+		{
+			var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionDto>();
+			var autenticacionExt = (AutenticacionExtension)autenticacionProveedor;
+			await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+
+			navManager.NavigateTo("/Home");
+		}
+	}
+}
