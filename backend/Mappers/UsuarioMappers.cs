@@ -1,4 +1,4 @@
-﻿using backend.Dtos.Usuarios;
+﻿using Shared;
 using backend.Models;
 
 namespace backend.Mappers

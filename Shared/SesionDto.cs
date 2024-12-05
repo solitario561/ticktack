@@ -1,4 +1,4 @@
-﻿namespace backend.Dtos.Usuarios
+﻿namespace Shared
 {
 	public class SesionDto
 	{

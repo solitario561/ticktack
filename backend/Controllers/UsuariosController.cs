@@ -1,5 +1,5 @@
 ﻿using backend.Data;
-using backend.Dtos.Usuarios;
+using Shared;
 using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
