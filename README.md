@@ -9,7 +9,7 @@ Este proyecto se encuentra dividido en tres secciones: **Backend**, **Frontend**
 1. **Clonar o descargar el repositorio:**
    - Puedes clonar el repositorio utilizando Git:
      ```bash
-     git clone https://github.com/usuario/proyecto-tareas.git
+     https://github.com/solitario561/ticktack.git
      ```
    - También puedes descargarlo como un archivo `.zip` directamente desde el repositorio de GitHub.
 
