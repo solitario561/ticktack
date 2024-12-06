@@ -1,5 +1,5 @@
-﻿using backend.Dtos.Tarea;
-using backend.Models;
+﻿using backend.Models;
+using Shared.Dtos.Tarea;
 
 namespace backend.Mappers
 {
@@ -14,11 +14,10 @@ namespace backend.Mappers
 				Description = tareaModel.Description,
 				Completed = tareaModel.Completed,
 				Creadet_at = tareaModel.Creadet_at,
-				Updated_at = tareaModel.Updated_at,
-				Baja = tareaModel.Baja
+				Updated_at = tareaModel.Updated_at
 			};
 		}
-		public static Tarea ToTareaFromCreateDTO(this CreateTareaRequestDto tarea)
+		public static Tarea ToTareaFromCreateDTO(this TareaRequestDto tarea)
 		{
 			return new Tarea
 			{
@@ -26,8 +25,7 @@ namespace backend.Mappers
 				Description = tarea.Description,
 				Completed = tarea.Completed,
 				Creadet_at = DateTime.Now,
-				Updated_at = DateTime.Now,
-				Baja = false
+				Updated_at = DateTime.Now
 			};
 		}
 	}

@@ -1,8 +1,8 @@
 ﻿using backend.Data;
-using Shared;
 using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.Dtos.Usuarios;
 
 namespace backend.Controllers
 {

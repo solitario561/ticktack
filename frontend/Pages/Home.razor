@@ -1,7 +1,15 @@
 ﻿@page "/Home"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<AuthorizeView>
+	<Authorized>
+		<h1>Bienvenido @context.User.Identity!.Name</h1>
+	</Authorized>
+</AuthorizeView>
 
-Welcome to your new app.
+Esta es una aplicación para el control de tareas.
