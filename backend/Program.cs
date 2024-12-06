@@ -21,6 +21,11 @@ namespace backend
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            builder.Services.AddCors(options =>{
+                options.AddPolicy("AllowBlazorClient",builder =>{
+                    builder.WithOrigins("https://localhost:7266").AllowAnyMethod().AllowAnyHeader();
+                });
+            });
 
             var app = builder.Build();
 
@@ -36,6 +41,8 @@ namespace backend
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.UseCors("AllowBlazorClient");
 
             app.Run();
         }

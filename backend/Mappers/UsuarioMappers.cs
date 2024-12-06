@@ -1,5 +1,5 @@
-﻿using Shared;
-using backend.Models;
+﻿using backend.Models;
+using Shared.Dtos.Usuarios;
 
 namespace backend.Mappers
 {

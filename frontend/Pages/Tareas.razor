@@ -1,0 +1,192 @@
+﻿@page "/tareas"
+@inject HttpClient Http
+@inject NavigationManager navManager
+@attribute [Authorize]
+@using System.Text.Json
+@using Shared.Dtos.Tarea
+@using Microsoft.AspNetCore.Authorization
+@using Extensiones;
+
+<PageTitle>Tareas</PageTitle>
+
+<h1>LISTA DE TAREAS</h1>
+
+@if (tasks == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div style="overflow-x: auto; max-width: 100%">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Descripción</th>
+                    <th>Fecha de creación</th>
+                    <th>Fecha de edición</th>
+                    <th>Tarea completada</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tarea in tasks)
+                {
+                    <tr>
+                        <td>@tarea.Title</td>
+                        <td>@tarea.Description</td>
+                        <td>@tarea.Creadet_at.ToString("dd/mm/yyy HH:mm")</td>
+                        <td>@tarea.Updated_at.ToString("dd/mm/yyy HH:mm")</td>
+                        <td>
+                            @if (tarea.Completed)
+                            {
+                                <span class="text-success">✔️</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">❌</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" @onclick="() => EditTask(tarea.Id)">Editar</button><br />
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteTask(tarea.Id)">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-primary" @onclick="ShowAddTaskModal">Agregar Tarea</button>
+
+    @if (isModalVisible)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar Nueva Tarea</h5>
+                        <button type="button" class="btn-close" @onclick="CloseAddTaskModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentTask" OnValidSubmit="SendTaskToApyAsync">
+                            <DataAnnotationsValidator />
+
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Título</label>
+                                <InputText id="title" @bind-Value="currentTask.Title" class="form-control" />
+                                <ValidationMessage For="@(() => currentTask.Title)" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Descripción</label>
+                                <InputText id="description" @bind-Value="currentTask.Description" class="form-control" />
+                                <ValidationMessage For="@(() => currentTask.Description)" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="isCompleted" class="form-label">¿Completado?</label>
+                                <div class="form-check form-switch">
+                                    <InputCheckbox id="isCompleted" @bind-Value="currentTask.Completed" class="form-check-input" />
+                                    <ValidationMessage For="@(() => currentTask.Completed)" />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Guardar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseAddTaskModal">Cancelar</button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<TareaDto>? tasks = new List<TareaDto>();
+    private TareaRequestDto newTask = new TareaRequestDto() { Completed = false };
+    private bool isModalVisible = false;
+    private TareaDto? currentTask = new TareaDto();
+    private string modalTitle = "Agregar Tarea";
+    private bool EditMode = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshTasksAsync();
+    }
+
+    private async Task RefreshTasksAsync()
+    {
+        tasks = await GetTasksFromApiAsync();
+    }
+
+    private async Task<List<TareaDto>?> GetTasksFromApiAsync()
+    {
+        var tareas = await Http.GetAsync("/Tasks");
+        tasks = await tareas.Content.ReadFromJsonAsync<List<TareaDto>>();
+        StateHasChanged();
+        return tasks;
+    }
+
+    private void ShowAddTaskModal()
+    {
+        currentTask = new TareaDto();
+        isModalVisible = true;
+    }
+
+    private void CloseAddTaskModal()
+    {
+        isModalVisible = false;
+        newTask = new TareaRequestDto() { Completed = false };
+        navManager.NavigateTo("/tareas");
+    }
+
+    private async Task SendTaskToApyAsync()
+    {
+        if (EditMode)
+        {
+            var task= tasks?.FirstOrDefault(t => t.Id == currentTask?.Id);
+            if (task != null)
+            {
+                var taskJson = JsonSerializer.Serialize(currentTask?.TareaToTareaRequestDto());
+                var respuesta = await Http.PutAsync(
+                    $"/Tasks/{task.Id}",
+                    new StringContent(taskJson, System.Text.Encoding.UTF8, "application/json")
+                );
+            }
+        }else
+        {
+            var taskJson = JsonSerializer.Serialize(currentTask?.TareaToTareaRequestDto());
+            var respuesta = await Http.PostAsync(
+                "/Tasks",
+                new StringContent(taskJson, System.Text.Encoding.UTF8, "application/json")
+            );
+        }
+        await RefreshTasksAsync();
+        CloseAddTaskModal();
+    }
+
+    private async Task DeleteTask(int taskId)
+    {
+        var task = tasks?.FirstOrDefault(t => t.Id == taskId);
+        if (task != null)
+        {
+            var respuesta = await Http.DeleteAsync($"/Tasks/{task.Id}");
+            await RefreshTasksAsync();
+        }
+    }
+
+    private void EditTask(int taskId)
+    {
+        var task = tasks?.FirstOrDefault(t => t.Id == taskId);
+        if (task != null)
+        {
+            currentTask = task.Clone() as TareaDto;
+            modalTitle = "Editar Tarea";
+            EnableEditMode();
+            isModalVisible = true;
+        }
+    }
+
+    private void EnableEditMode() => EditMode = true;
+    private void DisableEditMode() => EditMode = false;
+
+}

@@ -1,48 +1,77 @@
 ﻿@page "/"
 @layout LoginLayout
-
 @inject HttpClient httpCLient
+@inject AuthenticationStateProvider autenticacionProveedor
+@inject NavigationManager navManager
 @using frontend.Extensiones;
 @using Shared;
 @using Microsoft.AspNetCore.Components.Authorization;
-@inject AuthenticationStateProvider autenticacionProveedor
-@inject NavigationManager navManager
+@using Shared.Dtos.Usuarios;
 
-<div class="row mt-5">
-	<div class="col-lg-4 offset-lg-4 border">
+<PageTitle>Login</PageTitle>
+
+<div class="login-background">
+	<div class="login-container">
 		<div class="mb-3 text-center">
 			<h3>LOGIN</h3>
 		</div>
 
 		<div class="mb-3">
 			<label>Correo</label>
-			<input @bind="login.Correo" class="form-control" />
+			<input @bind="login.Correo" class="form-control" required="true" type="email" placeholder="Ingresa el correo"/>
 		</div>
 
 		<div class="mb-3">
 			<label>Contraseña</label>
-			<input @bind="login.Pass" class="form-control" />
+			<input @bind="login.Pass" class="form-control" required="true" type="password" placeholder="Ingresa la contraseña"/>
 		</div>
 
 		<div class="mb-3">
 			<button @onclick="IniciarSesion" class="btn btn-primary">Login</button>
 		</div>
+
+		@if (!string.IsNullOrEmpty(mensajeError))
+		{
+			<div class="alert alert-danger text-center mt-3">
+				@mensajeError
+			</div>
+		}
 	</div>
 </div>
 
 @code {
 	private LoginDto login = new LoginDto();
+	private string mensajeError = string.Empty;
 
 	private async Task IniciarSesion()
 	{
-		var loginResponse = await httpCLient.PostAsJsonAsync<LoginDto>("/Login", login);
-		if(loginResponse.IsSuccessStatusCode)
+		try
 		{
-			var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionDto>();
-			var autenticacionExt = (AutenticacionExtension)autenticacionProveedor;
-			await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+			mensajeError = string.Empty;
+			var loginResponse = await httpCLient.PostAsJsonAsync("/Login", login);
+			if(loginResponse.IsSuccessStatusCode)
+			{
+				var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionDto>();
+				var autenticacionExt = (AutenticacionExtension)autenticacionProveedor;
+				await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
 
-			navManager.NavigateTo("/Home");
+				navManager.NavigateTo("/Home");
+			}
+			else if (loginResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				mensajeError = "Usuario o contraseña incorrectos.";
+			}
+			else
+			{
+				mensajeError = "Error al iniciar sesión. Inténtalo nuevamente.";
+			}
+
+		}
+		catch (Exception ex)
+		{
+			mensajeError = "Ocurrió un error inesperado.";
+			Console.WriteLine(ex.Message);
+			throw;
 		}
 	}
 }

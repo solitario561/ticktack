@@ -1,7 +1,7 @@
-﻿using Shared;
-using Blazored.SessionStorage;
+﻿using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using Shared.Dtos.Usuarios;
 
 namespace frontend.Extensiones
 {
