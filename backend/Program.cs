@@ -23,7 +23,7 @@ namespace backend
             });
             builder.Services.AddCors(options =>{
                 options.AddPolicy("AllowBlazorClient",builder =>{
-                    builder.WithOrigins("https://localhost:7266").AllowAnyMethod().AllowAnyHeader();
+                    builder.WithOrigins("http://solitario561-001-site1.jtempurl.com").AllowAnyMethod().AllowAnyHeader();
                 });
             });
 

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using frontend.Extensiones;
+using System.Net;
+using System.Text;
 
 namespace frontend
 {
@@ -14,9 +16,25 @@ namespace frontend
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5098") });
+            string userName = "11207515";
+            string pass = "60-dayfreetrial";
 
-            builder.Services.AddBlazoredSessionStorage();
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{userName}:{pass}"));
+
+			/*builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://carlosluna-001-site1.ltempurl.com") });*/
+			builder.Services.AddScoped(sp =>
+            {
+                var client = new HttpClient
+                {
+					BaseAddress = new Uri("http://carlosluna-001-site1.ltempurl.com")
+				};
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
+
+                return client;
+            });
+
+
+			builder.Services.AddBlazoredSessionStorage();
             builder.Services.AddScoped<AuthenticationStateProvider, AutenticacionExtension>();
             builder.Services.AddAuthorizationCore();
 
